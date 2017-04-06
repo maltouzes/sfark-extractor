@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-################################################################################
-# copyright 2016-2017 Tony Maillefaud <maltouzes@gmail.com>                    #
-#                                                                              #
-# This file is part of sfark-extractor                                         #
-#                                                                              #
-# sfark-extractor is free software: you can redistribute it and/or modify      #
-# it under the terms of the GNU General Public License as published by         #
-# the Free Software Foundation, either version 3 of the License, or            #
-# (at your option) any later version.                                          #
-#                                                                              #
-# sfark-extractor is distributed in the hope that it will be useful,           #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of               #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                #
-# GNU General Public License for more details.                                 #
-#                                                                              #
-# You should have received a copy of the GNU General Public License            #
-# along with sfark-extractor. If not, see <http://www.gnu.org/licenses/>.      #
-################################################################################
+###############################################################################
+# copyright 2016-2017 Tony Maillefaud <maltouzes@gmail.com>                   #
+#                                                                             #
+# This file is part of sfark-extractor                                        #
+#                                                                             #
+# sfark-extractor is free software: you can redistribute it and/or modify     #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation, either version 3 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# sfark-extractor is distributed in the hope that it will be useful,          #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License           #
+# along with sfark-extractor. If not, see <http://www.gnu.org/licenses/>.     #
+###############################################################################
 
 """sfark-extractor is a simple GUI sfArk decompressor to sf2, it convert
 soundfonts in the legacy sfArk v2 file format to sf2."""
@@ -26,7 +26,12 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
+import threading
+import subprocess
 from os.path import expanduser
+import os
+
+myDict = {}
 
 
 def fetch_sfark():
@@ -39,15 +44,51 @@ def fetch_sfark():
     _path_sfark.set(filename)
     if filename:
         _status_msg.set(filename.split('/')[-1])
-    else: _status_msg.set('Please choose a sfArk file')
+        myDict['sfarkfile'] = _status_msg.get()
+        myDict['path'] = os.path.dirname(filename)
+        myDict['sf2file'] = myDict['sfarkfile'].split('.')[-2] + ".sf2"
+    else:
+        _status_msg.set('Please choose a sfArk file')
+        myDict.pop('sfarkfile')
 
 
 def convert_sfark():
-    if _status_msg.get():
-        print(_status_msg.get())
+    print(_convert_btn.state())
+    print(type(_convert_btn.state()))
+    if 'sfarkfile' in myDict:
+        shell_cmd()
     else:
         _status_msg.set('Please select a sfArk file')
         _alert('Please select a sfArk file')
+
+
+def shell_cmd():
+    print(myDict['path'])
+    print(myDict['sfarkfile'])
+    print(myDict['sf2file'])
+    exe = "cd " + (myDict['path']) + " && sfarkxtc " + (myDict['sfarkfile']) \
+          + " " + (myDict['sf2file'])
+    myDict['exe'] = exe
+    print(myDict['exe'])
+    _convert_btn['state'] = 'disabled'
+    thd = threading.Thread(target=convert_subprocess, args=(exe,))
+    thd.start()
+    # convert_subprocess(exe)
+
+
+def convert_subprocess(exe):
+    p_exe = subprocess.Popen(exe, shell=True)
+    p_exe.communicate()
+    code_return = p_exe.returncode
+    print(code_return)
+    if "0" in str(code_return):
+        _convert_btn['state'] = 'normal'
+        _alert('Successful conversion')
+    elif "1" in str(code_return):
+        _convert_btn['state'] = 'normal'
+        _alert('Conversion failed')
+    else:
+        pass
 
 
 def _alert(msg):
