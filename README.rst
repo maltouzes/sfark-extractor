@@ -16,7 +16,7 @@ Prerequisites:
 * https://github.com/raboof/sfarkxtc (install it with root privileges: sudo make install)
 
 # Usage
-Run main.py
+Run sfark-extractor
 
 You can always reach me on:
 * Github: http://github.com/maltouzes/sfark-extractor

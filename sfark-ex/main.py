@@ -77,7 +77,9 @@ def shell_cmd():
 
 
 def convert_subprocess(exe):
-    p_exe = subprocess.Popen(exe, shell=True)
+    p_exe = subprocess.Popen(["sfarkxtc", myDict['sfarkfile'],
+                             myDict['sf2file']], stdout=subprocess.PIPE,
+                             cwd=myDict['path'])
     p_exe.communicate()
     code_return = p_exe.returncode
     print(code_return)
