@@ -26,7 +26,6 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
-# from tkinter import PhtotoImage
 import threading
 import subprocess
 from os.path import expanduser
@@ -39,22 +38,26 @@ def fetch_sfark():
     filename = filedialog.askopenfilename(
         initialfile='file.sfArk',
         initialdir=expanduser("~"),
-        filetypes=[('SFARK', '.sfArk'), ('ALL', '.*')])
+        filetypes=[('SFARK', '.sfArk'),
+                   ('SFARK SF2', '.sf2'),
+                   ('SFARK SF2', '.sfArk'),
+                   ('ALL', '.*')])
     _path_sfark.set(filename)
     if filename:
-        _status_msg.set(filename.split('/')[-1])
-        myDict['sfarkfile'] = _status_msg.get()
+        myDict['sfarkfile'] = filename.split('/')[-1]
         myDict['path'] = os.path.dirname(filename)
         myDict['sf2file'] = myDict['sfarkfile'].split('.')[-2] + ".sf2"
+        _status_msg.set(myDict['sfarkfile'] + " -> " + myDict['sf2file'])
     else:
         _status_msg.set('Please choose a sfArk file')
-        myDict.pop('sfarkfile')
+        try:
+            myDict.pop('sfarkfile')
+        except KeyError:
+            pass
 
 
 def convert_sfark():
-    print(_convert_btn.state())
-    print(type(_convert_btn.state()))
-    if 'sfarkfile' in myDict:
+    if 'sfarkfile' in myDict and myDict['sfarkfile'].endswith('sfArk'):
         shell_cmd()
     else:
         _status_msg.set('Please select a sfArk file')
@@ -62,13 +65,9 @@ def convert_sfark():
 
 
 def shell_cmd():
-    print(myDict['path'])
-    print(myDict['sfarkfile'])
-    print(myDict['sf2file'])
     exe = "cd " + (myDict['path']) + " && sfarkxtc " + (myDict['sfarkfile']) \
           + " " + (myDict['sf2file'])
     myDict['exe'] = exe
-    print(myDict['exe'])
     _convert_btn['state'] = 'disabled'
     thd = threading.Thread(target=convert_subprocess, args=(exe,))
     thd.start()
@@ -102,6 +101,14 @@ def errorPrint(err):
 
 if __name__ == "__main__":
     _root = Tk()
+    help_text = "sfArk-extractor is an apps for converts soudfonts in the "\
+        "legacy sfArk v2 file format to sf2\n\n"\
+        "Only Linux is supported"
+    about_text = "Developer:\n"\
+        "Maltouzes <maltouzes@gmail.com>\n\n"\
+        "Official Website:\n"\
+        "http://github.com/maltouzes/sfark-extractor\n\n"\
+        "Copyright \xa9 2016-2017 Tony Maillefaud"
     try:
         icon_path = os.getcwd() + "/icon.png"
         icon_sfark = PhotoImage(file=icon_path)
@@ -110,6 +117,12 @@ if __name__ == "__main__":
         errorPrint(tkerror)
 
     _root.title("myApp")
+    menubar = Menu(_root)
+    _root.config(menu=menubar)
+    menubar.add_command(label="Exit", command=_root.quit)
+    # function objects are required so we must use anonymous functions
+    menubar.add_command(label="Help", command=lambda: _alert(help_text))
+    menubar.add_command(label="About", command=lambda: _alert(about_text))
 
     _mainframe = ttk.Frame(_root, padding='5 5 5 5')
     _mainframe.grid(row=0, column=0, sticky=(E, W, N, S))
