@@ -26,6 +26,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
+# from tkinter import PhtotoImage
 import threading
 import subprocess
 from os.path import expanduser
@@ -35,11 +36,9 @@ myDict = {}
 
 
 def fetch_sfark():
-    myDir = expanduser("~") + "/MAO"  # dev version
     filename = filedialog.askopenfilename(
         initialfile='file.sfArk',
-        initialdir=myDir,  # dev version
-        # initialdir=expanduser("~"),
+        initialdir=expanduser("~"),
         filetypes=[('SFARK', '.sfArk'), ('ALL', '.*')])
     _path_sfark.set(filename)
     if filename:
@@ -97,8 +96,19 @@ def _alert(msg):
     messagebox.showinfo(message=msg)
 
 
+def errorPrint(err):
+    print("{0}: {1}".format(type(err), err))
+
+
 if __name__ == "__main__":
     _root = Tk()
+    try:
+        icon_path = os.getcwd() + "/icon.png"
+        icon_sfark = PhotoImage(file=icon_path)
+        _root.tk.call("wm", "iconphoto", _root, "-default", icon_sfark)
+    except TclError as tkerror:
+        errorPrint(tkerror)
+
     _root.title("myApp")
 
     _mainframe = ttk.Frame(_root, padding='5 5 5 5')
