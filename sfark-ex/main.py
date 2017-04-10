@@ -31,155 +31,166 @@ import subprocess
 from os.path import expanduser
 import os
 
-myDict = {}
 
+class SfarkConvertor():
 
-def fetch_sfark():
-    filename = filedialog.askopenfilename(
-        initialfile='file.sfArk',
-        initialdir=expanduser("~"),
-        filetypes=[('SFARK', '.sfArk'),
-                   ('SFARK SF2', '.sf2'),
-                   ('SFARK SF2', '.sfArk'),
-                   ('ALL', '.*')])
-    _path_sfark.set(filename)
-    if filename:
-        myDict['sfarkfile'] = filename.split('/')[-1]
-        myDict['path'] = os.path.dirname(filename)
-        myDict['sf2file'] = myDict['sfarkfile'].split('.')[-2] + ".sf2"
-        _status_msg.set(myDict['sfarkfile'] + " -> " + myDict['sf2file'])
-    else:
-        _status_msg.set('Please choose a sfArk file')
-        try:
-            myDict.pop('sfarkfile')
-        except KeyError:
-            pass
-
-
-def convert_sfark():
-    if 'sfarkfile' in myDict and myDict['sfarkfile'].endswith('sfArk'):
-        p.grid(row=2)
-        p.start()
-
-        shell_cmd()
-    else:
-        _status_msg.set('Please select a sfArk file')
-        _alert('Please select a sfArk file')
-
-
-def shell_cmd():
-
-    exe = "cd " + (myDict['path']) + " && sfarkxtc " + (myDict['sfarkfile']) \
-          + " " + (myDict['sf2file'])
-    myDict['exe'] = exe
-    _convert_btn['state'] = 'disabled'
-    thd = threading.Thread(target=convert_subprocess, args=(exe,))
-    thd.start()
-    # convert_subprocess(exe)
-
-
-def convert_subprocess(exe):
-    try:
-        p_exe = subprocess.Popen(["sfarkxtc", myDict['sfarkfile'],
-                                 myDict['sf2file']], stdout=subprocess.PIPE,
-                                 cwd=myDict['path'])
-        p_exe.communicate()
-        code_return = p_exe.returncode
-        print(code_return)
-        if "0" in str(code_return):
-            _convert_btn['state'] = 'normal'
-            _alert('Successful conversion')
-
-        elif "1" in str(code_return):
-            _convert_btn['state'] = 'normal'
-            _alert('Conversion failed')
+    def fetch_sfark(self):
+        filename = filedialog.askopenfilename(
+            initialfile='file.sfArk',
+            initialdir=expanduser("~"),
+            filetypes=[('SFARK', '.sfArk'),
+                       ('SFARK SF2', '.sf2'),
+                       ('SFARK SF2', '.sfArk'),
+                       ('ALL', '.*')])
+        self._path_sfark.set(filename)
+        if filename:
+            self.myDict['sfarkfile'] = filename.split('/')[-1]
+            self.myDict['path'] = os.path.dirname(filename)
+            self.myDict['sf2file'] = (self.myDict['sfarkfile'].split('.')[-2] +
+                                      ".sf2")
+            self._status_msg.set(self.myDict['sfarkfile'] + " -> " +
+                                 self.myDict['sf2file'])
         else:
-            pass
+            self._status_msg.set('Please choose a sfArk file')
+            try:
+                self.myDict.pop('sfarkfile')
+            except KeyError:
+                pass
 
-    except FileNotFoundError:
-            _status_msg.set('Please install sfArkxtc')
-            _alert('Please install sfArkxtc')
-            _convert_btn['state'] = 'normal'
+    def convert_sfark(self):
+        if ('sfarkfile' in self.myDict and
+                self.myDict['sfarkfile'].endswith('sfArk')):
+            self.pgr.grid(row=2)
+            self.pgr.start()
 
-    p.stop()
-    p.grid_forget()
+            self.shell_cmd()
+        else:
+            self._status_msg.set('Please select a sfArk file')
+            self._alert('Please select a sfArk file')
 
+    def shell_cmd(self):
 
-def _alert(msg):
-    messagebox.showinfo(message=msg)
+        exe = "cd " + (self.myDict['path']) + " && sfarkxtc " + (self.myDict['sfarkfile']) \
+              + " " + (self.myDict['sf2file'])
+        self.myDict['exe'] = exe
+        self._convert_btn['state'] = 'disabled'
+        thd = threading.Thread(target=self.convert_subprocess, args=(exe,))
+        thd.start()
+        # convert_subprocess(exe)
 
+    def convert_subprocess(self, exe):
+        try:
+            self.p_exe = subprocess.Popen(["sfarkxtc",
+                                          self.myDict['sfarkfile'],
+                                          self.myDict['sf2file']],
+                                          stdout=subprocess.PIPE,
+                                          cwd=self.myDict['path'])
+            self.p_exe.communicate()
+            code_return = self.p_exe.returncode
+            print(code_return)
+            if "0" in str(code_return):
+                self._convert_btn['state'] = 'normal'
+                self._alert('Successful conversion')
 
-def errorPrint(err):
-    print("{0}: {1}".format(type(err), err))
+            elif "1" in str(code_return):
+                self._convert_btn['state'] = 'normal'
+                self._alert('Conversion failed')
+            else:
+                pass
 
+        except FileNotFoundError:
+                self._status_msg.set('Please install sfArkxtc')
+                self._alert('Please install sfArkxtc')
+                self._convert_btn['state'] = 'normal'
 
-def _quit(event=None):
-    sys.exit(0)
+        self.pgr.stop()
+        self.pgr.grid_forget()
 
+    def _alert(self, msg):
+        messagebox.showinfo(message=msg)
 
-if __name__ == "__main__":
-    _root = Tk()
-    help_text = "sfArk-extractor is an apps for converts soudfonts in the "\
-        "legacy sfArk v2 file format to sf2\n\n"\
-        "Only Linux is supported"
-    about_text = "Developer:\n"\
-        "Maltouzes <maltouzes@gmail.com>\n\n"\
-        "Official Website:\n"\
-        "http://github.com/maltouzes/sfark-extractor\n\n"\
-        "Copyright \xa9 2016-2017 Tony Maillefaud"
+    def errorPrint(self, err):
+        print("{0}: {1}".format(type(err), err))
 
-    _root.bind('<Escape>', _quit)
-    _root.bind('<Control-q>', _quit)
-    try:
-        icon_path = os.getcwd() + "/icon.png"
-        icon_sfark = PhotoImage(file=icon_path)
-        _root.tk.call("wm", "iconphoto", _root, "-default", icon_sfark)
-    except TclError as tkerror:
-        errorPrint(tkerror)
+    def _quit(self, event=None):
+        try:
+            self.p_exe.kill()
+            self._convert_btn['state'] = 'normal'
+            self._status_msg.set('operation canceled')
+        except (ProcessLookupError, AttributeError):
+            self._root.quit()
+        # sys.exit(0)
 
-    _root.title("myApp")
-    menubar = Menu(_root)
-    _root.config(menu=menubar)
-    menubar.add_command(label="Exit", command=_root.quit)
-    # function objects are required so we must use anonymous functions
-    menubar.add_command(label="Help", command=lambda: _alert(help_text))
-    menubar.add_command(label="About", command=lambda: _alert(about_text))
+    def __init__(self):
+        self.p_exe = None
+        self._root = Tk()
+        self.myDict = {}
+        help_text = "sfArk-extractor is an apps for converts soudfonts in the "\
+            "legacy sfArk v2 file format to sf2\n\n"\
+            "Only Linux is supported"
+        about_text = "Developer:\n"\
+            "Maltouzes <maltouzes@gmail.com>\n\n"\
+            "Official Website:\n"\
+            "http://github.com/maltouzes/sfark-extractor\n\n"\
+            "Copyright \xa9 2016-2017 Tony Maillefaud"
 
-    _mainframe = ttk.Frame(_root, padding='5 5 5 5')
-    _mainframe.grid(row=0, column=0, sticky=(E, W, N, S))
+        self._root.bind('<Escape>', self._quit)
+        self._root.bind('<Control-q>', self._quit)
+        try:
+            icon_path = os.getcwd() + "/icon.png"
+            icon_sfark = PhotoImage(file=icon_path)
+            self._root.tk.call("wm", "iconphoto",
+                               self._root, "-default", icon_sfark)
+        except TclError as tkerror:
+            self.errorPrint(tkerror)
 
-    _path_frame = ttk.LabelFrame(
-        _mainframe, text='Path to the sfArk file', padding='5 5 5 5')
-    _path_frame.grid(row=0, column=0, sticky=(E, W))
-    _path_frame.columnconfigure(0, weight=1)
-    _path_frame.rowconfigure(0, weight=1)
+        self._root.title("sfArk Convertor")
+        menubar = Menu(self._root)
+        self._root.config(menu=menubar)
+        menubar.add_command(label="Exit", command=self._quit)
+        # function objects are required so we must use anonymous functions
+        menubar.add_command(label="Help",
+                            command=lambda: self._alert(help_text))
+        menubar.add_command(label="About",
+                            command=lambda: self._alert(about_text))
 
-    _path_sfark = StringVar()
-    _path_sfark.set(expanduser("~"))
-    _path_entry = ttk.Label(
-        _path_frame, width=40, textvariable=_path_sfark)
-    _path_entry.grid(row=0, column=0, sticky=(E, W, S, N), padx=5)
+        _mainframe = ttk.Frame(self._root, padding='5 5 5 5')
+        _mainframe.grid(row=0, column=0, sticky=(E, W, N, S))
 
-    _fetch_btn = ttk.Button(
-        _path_frame, text='Choose', command=fetch_sfark)
-    _fetch_btn.grid(row=0, column=1, sticky=W, padx=5)
+        _path_frame = ttk.LabelFrame(
+            _mainframe, text='Path to the sfArk file', padding='5 5 5 5')
+        _path_frame.grid(row=0, column=0, sticky=(E, W))
+        _path_frame.columnconfigure(0, weight=1)
+        _path_frame.rowconfigure(0, weight=1)
 
-    _convert_frame = ttk.LabelFrame(
-        _mainframe, text='Convert', padding='5 5 5 5')
-    _convert_frame.grid(row=1, column=0, sticky=(E, W, S, N), padx=5)
+        self._path_sfark = StringVar()
+        self._path_sfark.set(expanduser("~"))
+        _path_entry = ttk.Label(
+            _path_frame, width=40, textvariable=self._path_sfark)
+        _path_entry.grid(row=0, column=0, sticky=(E, W, S, N), padx=5)
 
-    _status_msg = StringVar()
-    _status_msg.set('Please choose a sfark file')
+        _fetch_btn = ttk.Button(
+            _path_frame, text='Choose', command=self.fetch_sfark)
+        _fetch_btn.grid(row=0, column=1, sticky=W, padx=5)
 
-    _status = ttk.Label(
-        _convert_frame, textvariable=_status_msg, anchor=W)
-    _status.grid(row=0, column=0, sticky=W, pady=5)
+        _convert_frame = ttk.LabelFrame(
+            _mainframe, text='Convert', padding='5 5 5 5')
+        _convert_frame.grid(row=1, column=0, sticky=(E, W, S, N), padx=5)
 
-    _convert_btn = ttk.Button(
-        _mainframe, text='Convert', command=convert_sfark)
-    _convert_btn.grid(row=2, column=0, sticky=E, pady=5)
+        self._status_msg = StringVar()
+        self._status_msg.set('Please choose a sfark file')
 
-    p = ttk.Progressbar(_mainframe, orient=HORIZONTAL,
-                        length=200, mode='indeterminate')
+        _status = ttk.Label(
+            _convert_frame, textvariable=self._status_msg, anchor=W)
+        _status.grid(row=0, column=0, sticky=W, pady=5)
 
-    _root.mainloop()
+        self._convert_btn = ttk.Button(
+            _mainframe, text='Convert', command=self.convert_sfark)
+        self._convert_btn.grid(row=2, column=0, sticky=E, pady=5)
+
+        self.pgr = ttk.Progressbar(_mainframe, orient=HORIZONTAL,
+                                   length=200, mode='indeterminate')
+
+        self._root.mainloop()
+
+sfarkconvertor = SfarkConvertor()
