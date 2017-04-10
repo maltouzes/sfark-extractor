@@ -58,6 +58,9 @@ def fetch_sfark():
 
 def convert_sfark():
     if 'sfarkfile' in myDict and myDict['sfarkfile'].endswith('sfArk'):
+        p.grid(row=2)
+        p.start()
+
         shell_cmd()
     else:
         _status_msg.set('Please select a sfArk file')
@@ -65,6 +68,7 @@ def convert_sfark():
 
 
 def shell_cmd():
+
     exe = "cd " + (myDict['path']) + " && sfarkxtc " + (myDict['sfarkfile']) \
           + " " + (myDict['sf2file'])
     myDict['exe'] = exe
@@ -81,9 +85,12 @@ def convert_subprocess(exe):
     p_exe.communicate()
     code_return = p_exe.returncode
     print(code_return)
+    p.stop()
+    p.grid_forget()
     if "0" in str(code_return):
         _convert_btn['state'] = 'normal'
         _alert('Successful conversion')
+
     elif "1" in str(code_return):
         _convert_btn['state'] = 'normal'
         _alert('Conversion failed')
@@ -99,6 +106,10 @@ def errorPrint(err):
     print("{0}: {1}".format(type(err), err))
 
 
+def _quit(event=None):
+    sys.exit(0)
+
+
 if __name__ == "__main__":
     _root = Tk()
     help_text = "sfArk-extractor is an apps for converts soudfonts in the "\
@@ -109,6 +120,9 @@ if __name__ == "__main__":
         "Official Website:\n"\
         "http://github.com/maltouzes/sfark-extractor\n\n"\
         "Copyright \xa9 2016-2017 Tony Maillefaud"
+
+    _root.bind('<Escape>', _quit)
+    _root.bind('<Control-q>', _quit)
     try:
         icon_path = os.getcwd() + "/icon.png"
         icon_sfark = PhotoImage(file=icon_path)
@@ -157,5 +171,8 @@ if __name__ == "__main__":
     _convert_btn = ttk.Button(
         _mainframe, text='Convert', command=convert_sfark)
     _convert_btn.grid(row=2, column=0, sticky=E, pady=5)
+
+    p = ttk.Progressbar(_mainframe, orient=HORIZONTAL,
+                        length=200, mode='indeterminate')
 
     _root.mainloop()
