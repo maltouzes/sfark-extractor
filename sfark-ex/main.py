@@ -79,23 +79,30 @@ def shell_cmd():
 
 
 def convert_subprocess(exe):
-    p_exe = subprocess.Popen(["sfarkxtc", myDict['sfarkfile'],
-                             myDict['sf2file']], stdout=subprocess.PIPE,
-                             cwd=myDict['path'])
-    p_exe.communicate()
-    code_return = p_exe.returncode
-    print(code_return)
+    try:
+        p_exe = subprocess.Popen(["sfarkxtc", myDict['sfarkfile'],
+                                 myDict['sf2file']], stdout=subprocess.PIPE,
+                                 cwd=myDict['path'])
+        p_exe.communicate()
+        code_return = p_exe.returncode
+        print(code_return)
+        if "0" in str(code_return):
+            _convert_btn['state'] = 'normal'
+            _alert('Successful conversion')
+
+        elif "1" in str(code_return):
+            _convert_btn['state'] = 'normal'
+            _alert('Conversion failed')
+        else:
+            pass
+
+    except FileNotFoundError:
+            _status_msg.set('Please install sfArkxtc')
+            _alert('Please install sfArkxtc')
+            _convert_btn['state'] = 'normal'
+
     p.stop()
     p.grid_forget()
-    if "0" in str(code_return):
-        _convert_btn['state'] = 'normal'
-        _alert('Successful conversion')
-
-    elif "1" in str(code_return):
-        _convert_btn['state'] = 'normal'
-        _alert('Conversion failed')
-    else:
-        pass
 
 
 def _alert(msg):
@@ -149,7 +156,7 @@ if __name__ == "__main__":
 
     _path_sfark = StringVar()
     _path_sfark.set(expanduser("~"))
-    _path_entry = ttk.Entry(
+    _path_entry = ttk.Label(
         _path_frame, width=40, textvariable=_path_sfark)
     _path_entry.grid(row=0, column=0, sticky=(E, W, S, N), padx=5)
 
