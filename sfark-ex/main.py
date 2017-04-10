@@ -66,7 +66,7 @@ class SfarkConvertor():
             self.shell_cmd()
         else:
             self._status_msg.set('Please select a sfArk file')
-            self._alert('Please select a sfArk file')
+            self._alert('Please select a sfArk file (*.sfArk)')
 
     def shell_cmd(self):
 
@@ -100,14 +100,19 @@ class SfarkConvertor():
 
         except FileNotFoundError:
                 self._status_msg.set('Please install sfArkxtc')
-                self._alert('Please install sfArkxtc')
+                self._alert('Please install sfArkxtc', _type="showError")
                 self._convert_btn['state'] = 'normal'
 
         self.pgr.stop()
         self.pgr.grid_forget()
 
-    def _alert(self, msg):
-        messagebox.showinfo(message=msg)
+    def _alert(self, msg, _type="showInfo"):
+        if _type == "showError":
+            messagebox.showerror(message=msg)
+        elif _type == "showWarning":
+            messagebox.showwarning(message=msg)
+        else:
+            messagebox.showinfo(message=msg)
 
     def errorPrint(self, err):
         print("{0}: {1}".format(type(err), err))
@@ -137,7 +142,7 @@ class SfarkConvertor():
         self._root.bind('<Escape>', self._quit)
         self._root.bind('<Control-q>', self._quit)
         try:
-            icon_path = os.getcwd() + "/icon.png"
+            icon_path = os.getcwd() + "/sfark-extractor.png"
             icon_sfark = PhotoImage(file=icon_path)
             self._root.tk.call("wm", "iconphoto",
                                self._root, "-default", icon_sfark)
