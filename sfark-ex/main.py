@@ -99,9 +99,9 @@ class SfarkConvertor():
                 pass
 
         except FileNotFoundError:
-                self._status_msg.set('Please install sfArkxtc')
-                self._alert('Please install sfArkxtc', _type="showError")
-                self._convert_btn['state'] = 'normal'
+            self._status_msg.set('Please install sfArkxtc')
+            self._alert('Please install sfArkxtc', _type="showError")
+            self._convert_btn['state'] = 'normal'
 
         self.pgr.stop()
         self.pgr.grid_forget()
@@ -142,7 +142,8 @@ class SfarkConvertor():
         self._root.bind('<Escape>', self._quit)
         self._root.bind('<Control-q>', self._quit)
         try:
-            icon_path = os.getcwd() + "/sfark-extractor.png"
+            # icon_path = os.getcwd() + "/sfark-extractor.png"
+            icon_path = "/usr/share/pixmaps/sfark-extractor.png"
             icon_sfark = PhotoImage(file=icon_path)
             self._root.tk.call("wm", "iconphoto",
                                self._root, "-default", icon_sfark)
