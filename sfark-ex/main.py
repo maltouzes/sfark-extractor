@@ -19,13 +19,25 @@
 # along with sfark-extractor. If not, see <http://www.gnu.org/licenses/>.     #
 ###############################################################################
 
-"""sfark-extractor is a simple GUI sfArk decompressor to sf2, it convert
-soundfonts in the legacy sfArk v2 file format to sf2."""
+"""
+sfark-extractor is a simple GUI sfArk decompressor to sf2, it convert
+soundfonts in the legacy sfArk v2 file format to sf2.
+"""
 
-from tkinter import *
+# from tkinter import *
+from tkinter import Tk
+from tkinter import Menu
+from tkinter import E
+from tkinter import W
+from tkinter import N
+from tkinter import S
 from tkinter import ttk
+from tkinter import StringVar
+from tkinter import HORIZONTAL
 from tkinter import filedialog
 from tkinter import messagebox
+from tkinter import TclError
+from tkinter import PhotoImage
 import threading
 import subprocess
 from os.path import expanduser
@@ -33,8 +45,10 @@ import os
 
 
 class SfarkConvertor():
+    """ Base class, display tkinter gui """
 
     def fetch_sfark(self):
+        """ When the user press the choose button """
         filename = filedialog.askopenfilename(
             initialfile='file.sfArk',
             initialdir=expanduser("~"),
@@ -44,22 +58,23 @@ class SfarkConvertor():
                        ('ALL', '.*')])
         self._path_sfark.set(filename)
         if filename:
-            self.myDict['sfarkfile'] = filename.split('/')[-1]
-            self.myDict['path'] = os.path.dirname(filename)
-            self.myDict['sf2file'] = (self.myDict['sfarkfile'].split('.')[-2] +
-                                      ".sf2")
-            self._status_msg.set(self.myDict['sfarkfile'] + " -> " +
-                                 self.myDict['sf2file'])
+            self.my_dict['sfarkfile'] = filename.split('/')[-1]
+            self.my_dict['path'] = os.path.dirname(filename)
+            self.my_dict['sf2file'] = (self.my_dict['sfarkfile'].split('.')[-2]
+                                       + ".sf2")
+            self._status_msg.set(self.my_dict['sfarkfile'] + " -> " +
+                                 self.my_dict['sf2file'])
         else:
             self._status_msg.set('Please choose a sfArk file')
             try:
-                self.myDict.pop('sfarkfile')
+                self.my_dict.pop('sfarkfile')
             except KeyError:
                 pass
 
     def convert_sfark(self):
-        if ('sfarkfile' in self.myDict and
-                self.myDict['sfarkfile'].endswith('sfArk')):
+        """ check if the user have already choose a sfArk file """
+        if ('sfarkfile' in self.my_dict and
+                self.my_dict['sfarkfile'].endswith('sfArk')):
             self.pgr.grid(row=2)
             self.pgr.start()
 
@@ -69,22 +84,26 @@ class SfarkConvertor():
             self._alert('Please select a sfArk file (*.sfArk)')
 
     def shell_cmd(self):
+        """ called by convert_sfark """
 
-        exe = "cd " + (self.myDict['path']) + " && sfarkxtc " + (self.myDict['sfarkfile']) \
-              + " " + (self.myDict['sf2file'])
-        self.myDict['exe'] = exe
+        exe = "cd " + (self.my_dict['path']) + " && sfarkxtc " + (self.my_dict['sfarkfile']) \
+              + " " + (self.my_dict['sf2file'])
+        self.my_dict['exe'] = exe
         self._convert_btn['state'] = 'disabled'
         thd = threading.Thread(target=self.convert_subprocess, args=(exe,))
         thd.start()
-        # convert_subprocess(exe)
 
     def convert_subprocess(self, exe):
+        """ convertion procesuss sfArk -> sf2 """
+        print(exe)
         try:
-            self.p_exe = subprocess.Popen(["sfarkxtc",
-                                          self.myDict['sfarkfile'],
-                                          self.myDict['sf2file']],
-                                          stdout=subprocess.PIPE,
-                                          cwd=self.myDict['path'])
+            self.p_exe = subprocess.Popen(
+                ["sfarkxtc",
+                 self.my_dict['sfarkfile'],
+                 self.my_dict['sf2file']],
+                stdout=subprocess.PIPE,
+                cwd=self.my_dict['path'])
+
             self.p_exe.communicate()
             code_return = self.p_exe.returncode
             print(code_return)
@@ -106,7 +125,9 @@ class SfarkConvertor():
         self.pgr.stop()
         self.pgr.grid_forget()
 
-    def _alert(self, msg, _type="showInfo"):
+    @staticmethod
+    def _alert(msg, _type="showInfo"):
+        """ display a tkinker popup with the msg string """
         if _type == "showError":
             messagebox.showerror(message=msg)
         elif _type == "showWarning":
@@ -114,10 +135,13 @@ class SfarkConvertor():
         else:
             messagebox.showinfo(message=msg)
 
-    def errorPrint(self, err):
+    @staticmethod
+    def error_print(err):
+        """ take an err as argument """
         print("{0}: {1}".format(type(err), err))
 
     def _quit(self, event=None):
+        """ exit the apps or stop the subprocess """
         try:
             self.p_exe.kill()
             self._convert_btn['state'] = 'normal'
@@ -129,7 +153,7 @@ class SfarkConvertor():
     def __init__(self):
         self.p_exe = None
         self._root = Tk()
-        self.myDict = {}
+        self.my_dict = {}
         help_text = "sfArk-extractor is an apps for converts soudfonts in the "\
             "legacy sfArk v2 file format to sf2\n\n"\
             "Only Linux is supported"
@@ -148,7 +172,7 @@ class SfarkConvertor():
             self._root.tk.call("wm", "iconphoto",
                                self._root, "-default", icon_sfark)
         except TclError as tkerror:
-            self.errorPrint(tkerror)
+            self.error_print(tkerror)
 
         self._root.title("sfArk Convertor")
         menubar = Menu(self._root)
@@ -199,4 +223,4 @@ class SfarkConvertor():
 
         self._root.mainloop()
 
-sfarkconvertor = SfarkConvertor()
+SFARKCONVERTOR = SfarkConvertor()
