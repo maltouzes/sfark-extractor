@@ -1,0 +1,4 @@
+sfark-extractor usr/bin/
+sfark-extractor.png usr/share/pixmaps
+sfark-extractor.desktop usr/share/applications
+sfark-extractor.1 usr/share/man/man1
