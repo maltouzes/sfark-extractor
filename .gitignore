@@ -1,0 +1,7 @@
+*~
+*.swp
+.*
+main.spec
+packaging
+*.xcf
+__pycache__
