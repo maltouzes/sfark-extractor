@@ -140,7 +140,7 @@ class SfarkConvertor():
         """ take an err as argument """
         print("{0}: {1}".format(type(err), err))
 
-    def _quit(self, event=None):
+    def _quit(self):
         """ exit the apps or stop the subprocess """
         try:
             self.p_exe.kill()
@@ -163,8 +163,8 @@ class SfarkConvertor():
             "http://github.com/maltouzes/sfark-extractor\n\n"\
             "Copyright \xa9 2016-2017 Tony Maillefaud"
 
-        self._root.bind('<Escape>', self._quit)
-        self._root.bind('<Control-q>', self._quit)
+        self._root.bind('<Escape>', lambda event: self._quit())
+        self._root.bind('<Control-q>', lambda event: self._quit())
         try:
             if os.path.isfile("/usr/share/pixmaps/sfark-extractor.png"):
                 icon_path = "/usr/share/pixmaps/sfark-extractor.png"
