@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 # -*- coding: utf-8 -*-
 ################################################################################
 # copyright 2016-2017 Tony Maillefaud <maltouzes@gmail.com>                    #
@@ -16,7 +16,7 @@
 # GNU General Public License for more details.                                 #
 #                                                                              #
 # You should have received a copy of the GNU General Public License            #
-# along with sfark-convertor If not, see <http://www.gnu.org/licenses/>.       #
+# along with sfark-extractor If not, see <http://www.gnu.org/licenses/>.       #
 ################################################################################
 
-python3 -m sfark-ex.main "$@"
+python3 sample/sfark_extractor
