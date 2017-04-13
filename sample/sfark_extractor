@@ -150,63 +150,48 @@ class SfarkConvertor():
             self._root.quit()
         # sys.exit(0)
 
-    def __init__(self):
-        self.p_exe = None
-        self._root = Tk()
-        self.my_dict = {}
-        help_text = "sfArk-extractor is an apps for converts soudfonts in the "\
-            "legacy sfArk v2 file format to sf2\n\n"\
-            "Only Linux is supported"
-        about_text = "Developer:\n"\
-            "Maltouzes <maltouzes@gmail.com>\n\n"\
-            "Official Website:\n"\
-            "http://github.com/maltouzes/sfark-extractor\n\n"\
-            "Copyright \xa9 2016-2017 Tony Maillefaud"
-
-        self._root.bind('<Escape>', lambda event: self._quit())
-        self._root.bind('<Control-q>', lambda event: self._quit())
-        try:
-            if os.path.isfile("/usr/share/pixmaps/sfark-extractor.png"):
-                icon_path = "/usr/share/pixmaps/sfark-extractor.png"
-            else:
-                icon_path = os.getcwd() + "/sfark-extractor.png"
-            icon_sfark = PhotoImage(file=icon_path)
-            self._root.tk.call("wm", "iconphoto",
-                               self._root, "-default", icon_sfark)
-        except TclError as tkerror:
-            self.error_print(tkerror)
-
+    def add_mainframe_and_title(self):
+        """ return none, add title to the root widget, create mainframe """
         self._root.title("sfArk Convertor")
+
+        self._mainframe = ttk.Frame(self._root, padding='5 5 5 5')
+        self._mainframe.grid(row=0, column=0, sticky=(E, W, N, S))
+
+    def add_menu(self):
+        """ return none, add menu to the root widget """
         menubar = Menu(self._root)
         self._root.config(menu=menubar)
         menubar.add_command(label="Exit", command=self._quit)
         # function objects are required so we must use anonymous functions
         menubar.add_command(label="Help",
-                            command=lambda: self._alert(help_text))
+                            command=lambda:
+                            self._alert(self.my_dict["help_text"]))
         menubar.add_command(label="About",
-                            command=lambda: self._alert(about_text))
+                            command=lambda:
+                            self._alert(self.my_dict["about_text"]))
 
-        _mainframe = ttk.Frame(self._root, padding='5 5 5 5')
-        _mainframe.grid(row=0, column=0, sticky=(E, W, N, S))
-
-        _path_frame = ttk.LabelFrame(
-            _mainframe, text='Path to the sfArk file', padding='5 5 5 5')
-        _path_frame.grid(row=0, column=0, sticky=(E, W))
-        _path_frame.columnconfigure(0, weight=1)
-        _path_frame.rowconfigure(0, weight=1)
+    def add_up_frame(self):
+        """ return none, create top interface """
+        self._path_frame = ttk.LabelFrame(
+            self._mainframe, text='Path to the sfArk file', padding='5 5 5 5')
+        self._path_frame.grid(row=0, column=0, sticky=(E, W))
+        self._path_frame.columnconfigure(0, weight=1)
+        self._path_frame.rowconfigure(0, weight=1)
 
         self._path_sfark = StringVar()
         self._path_sfark.set(expanduser("~"))
         _path_entry = ttk.Label(
-            _path_frame, width=40, textvariable=self._path_sfark)
+            self._path_frame, width=40, textvariable=self._path_sfark)
         _path_entry.grid(row=0, column=0, sticky=(E, W, S, N), padx=5)
 
         _fetch_btn = ttk.Button(
-            _path_frame, text='Choose', command=self.fetch_sfark)
+            self._path_frame, text='Choose', command=self.fetch_sfark)
         _fetch_btn.grid(row=0, column=1, sticky=W, padx=5)
 
+    def add_bottom_frame(self):
+        """ return none, create bottom interface """
         _convert_frame = ttk.LabelFrame(
-            _mainframe, text='Convert', padding='5 5 5 5')
+            self._mainframe, text='Convert', padding='5 5 5 5')
         _convert_frame.grid(row=1, column=0, sticky=(E, W, S, N), padx=5)
 
         self._status_msg = StringVar()
@@ -217,11 +202,60 @@ class SfarkConvertor():
         _status.grid(row=0, column=0, sticky=W, pady=5)
 
         self._convert_btn = ttk.Button(
-            _mainframe, text='Convert', command=self.convert_sfark)
+            self._mainframe, text='Convert', command=self.convert_sfark)
         self._convert_btn.grid(row=2, column=0, sticky=E, pady=5)
 
-        self.pgr = ttk.Progressbar(_mainframe, orient=HORIZONTAL,
+        self.pgr = ttk.Progressbar(self._mainframe, orient=HORIZONTAL,
                                    length=200, mode='indeterminate')
+
+    def add_data_structures(self):
+        """ initialize various variables and data structutes """
+        self.my_dict["help_text"] = "sfArk-extractor is an apps for converts soudfonts in the "\
+            "legacy sfArk v2 file format to sf2\n\n"\
+            "Only Linux is supported"
+        self.my_dict["about_text"] = "Developer:\n"\
+            "Maltouzes <maltouzes@gmail.com>\n\n"\
+            "Official Website:\n"\
+            "http://github.com/maltouzes/sfark-extractor\n\n"\
+            "Copyright \xa9 2016-2017 Tony Maillefaud"
+        self.my_dict["icon_path"] = ""  # is not initialised throw error
+
+    def add_icon(self):
+        """ return none, add icon to the gui """
+        try:
+            if os.path.isfile("/usr/share/pixmaps/sfark-extractor.png"):
+                self.my_dict["icon_path"] = \
+                    "/usr/share/pixmaps/sfark-extractor.png"
+            else:
+                self.my_dict["icon_path"] = \
+                    os.getcwd() + "/sfark-extractor.png"
+            icon_sfark = PhotoImage(file=self.my_dict["icon_path"])
+            self._root.tk.call("wm", "iconphoto",
+                               self._root, "-default", icon_sfark)
+        except TclError as tkerror:
+            self.error_print(tkerror)
+
+    def add_event(self):
+        """ Custom listener methods
+        receive the events and respond to them
+        """
+
+        self._root.bind('<Escape>', lambda event: self._quit())
+        self._root.bind('<Control-q>', lambda event: self._quit())
+
+    def __init__(self):
+        self.p_exe = None
+        self._root = Tk()
+        self.my_dict = {}
+
+        self.add_event()
+
+        # add gui
+        self.add_menu()
+        self.add_icon()
+        self.add_mainframe_and_title()
+        self.add_up_frame()
+        self.add_bottom_frame()
 
         self._root.mainloop()
 
