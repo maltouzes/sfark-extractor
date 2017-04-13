@@ -1,7 +1,9 @@
 *~
 *.swp
 .*
-main.spec
+*.spec
 packaging
+build
+dist
 *.xcf
 __pycache__

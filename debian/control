@@ -11,7 +11,7 @@ Homepage: http://github.com/maltouzes/sfark-extractor
 Package: sfark-extractor
 Architecture: all
 Depends: ${misc:Depends}, ${python3:Depends},
-         sfarkxtc, python-tk
+         sfarkxtc, python3-tk
 Description: Simple graphical sfArk decompressor to sf2.
  Converts legacy sfArk files into the SoundFont 2 format.
  .

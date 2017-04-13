@@ -166,8 +166,10 @@ class SfarkConvertor():
         self._root.bind('<Escape>', self._quit)
         self._root.bind('<Control-q>', self._quit)
         try:
-            # icon_path = os.getcwd() + "/sfark-extractor.png"
-            icon_path = "/usr/share/pixmaps/sfark-extractor.png"
+            if os.path.isfile("/usr/share/pixmaps/sfark-extractor.png"):
+                icon_path = "/usr/share/pixmaps/sfark-extractor.png"
+            else:
+                icon_path = os.getcwd() + "/sfark-extractor.png"
             icon_sfark = PhotoImage(file=icon_path)
             self._root.tk.call("wm", "iconphoto",
                                self._root, "-default", icon_sfark)
